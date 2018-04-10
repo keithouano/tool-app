@@ -1,0 +1,67 @@
+﻿<!--
+  Generated template for the PaymentMethodPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar  color="primary" >
+    <ion-title>{{ 'PAYMENT_METHODS' | translate }}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-list class="list-full-border" radio-group>
+    <ion-item>
+      <ion-label>
+        {{ 'CASH' | translate }}
+        <p class="text-hint">{{ 'USE_CASH' | translate }}</p>
+      </ion-label>
+      <ion-radio value="A" (click)="changeMethod('Cash')"></ion-radio>
+    </ion-item>
+    <ion-item>
+      <ion-label>
+        {{ 'CARD' | translate }}        
+        <!--<p class="text-hint"></p>-->
+      </ion-label>
+      <ion-radio value="B" (click)="changeMethod('Card')"></ion-radio>
+    </ion-item>
+      <!--<ion-input type="text" value="please enter card detailis" [(ngDisabled)]="isDisabled" [disabled]="isDisabled"></ion-input>-->
+  </ion-list>
+
+  <ion-list *ngIf="!isDisabled">
+    <ion-item>
+      <ion-label color="primary" floating>{{ 'NAME_AS_ON_CARD' | translate }}</ion-label>
+      <ion-input type="text" [(ngModel)]="cardName" ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="primary" floating>{{ 'CARD_NUMBER' | translate }}</ion-label>
+      <ion-input type="text" [(ngModel)]="cardNo" maxlength="16"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="primary" floating>{{ 'CARD_TYPE' | translate }}</ion-label>
+      <ion-input type="text" [(ngModel)]="cardType"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label color="primary" floating>{{ 'EXPIRY_DATE' | translate }}(mm/yyyy)</ion-label>
+      <ion-datetime displayFormat="MM/YYYY" min="2017" max="2100-12-31" [(ngModel)]="expiryDate"></ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="primary" floating>CVV</ion-label>
+      <ion-input type="text" [(ngModel)]="cvv" maxlength="3"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <!--<ion-col width-40>
+        <button ion-button block color="danger" (click)="closeWindow()">Cancel</button>
+      </ion-col>-->
+      <ion-col width-40>
+        <button ion-button block color="secondary" (click)="paymentSubmit()">{{ 'SUBMIT' | translate }}</button>
+      </ion-col>
+    </ion-item>
+  </ion-list>
+</ion-content>

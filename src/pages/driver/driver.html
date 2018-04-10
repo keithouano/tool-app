@@ -1,0 +1,45 @@
+﻿<!--
+  Generated template for the DriverPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary" >
+    <ion-title>{{ 'DRIVER_FOUND' | translate }}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <div class="driver-top dark-bg light" text-center>
+    <span>{{ 'SUCCESS_FOUND_DRIVER' | translate }}</span>
+  </div>
+
+  <div class="driver-info rlt" text-center>
+
+    <div class="driver-picture" padding-bottom>
+      <img *ngIf="driverPhoto" class="circle" src="{{serviceUrl.baseUrl}}{{driverPhoto}}" onerror="this.onerror=null;this.src='assets/img/driver.png';" alt=""/>
+    </div>
+
+    <div no-margin>{{ 'HI_MY_NAME_IS' | translate }}</div>
+    <h3 no-margin color="primary" >{{ driver.DriverName }}</h3>
+    <!--<div no-margin>My Id : {{ driverNo }}</div>-->
+
+    <ion-grid class="driver-plate">
+      <ion-row>
+        <ion-col>
+          <div class="text-hint">{{ 'PLATE_NUMBER' | translate }}</div>
+          <strong margin-top>{{ driver.VehicleNo }}</strong>
+        </ion-col>
+        <ion-col>
+          <div class="text-hint">{{ 'BOOKING_STATUS' | translate }}</div>
+          <strong>{{driver.BookingStatus}}</strong>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-row>
+      <div id="{{ mapId }}" [ngStyle]="{height: mapHeight + 'px'}"></div>
+    </ion-row>
+    <div ion-button block color="primary" (click)="track()">{{ 'NEXT' | translate }}</div>
+  </div>
+</ion-content>

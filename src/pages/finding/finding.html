@@ -1,0 +1,65 @@
+﻿<!--
+  Generated template for the FindingPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary"  hideBackButton="true">
+    <ion-title>{{ 'FINDING_DRIVER' | translate }}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="primary-bg">
+    <br><br>
+  <!-- Green circle with marker icon in the center -->
+  <div padding text-center="">
+    <div class="location-animation circle"> 
+      <br>
+      <br><br><br>
+     <img src="assets/img/find7.gif" style="height:100px;" >
+     <br>
+      <br><br>
+     <span>{{ 'SEARCHING' | translate }}</span>
+    </div>
+    
+  </div>
+
+  <ion-list class="list-no-border list-drivers" padding>
+    <ion-item *ngIf="driverFound == 1">
+      <span>{{ 'NO_DRIVER_FOUND' | translate }}</span>
+      <!--<span class="pull-right">...</span>-->
+    </ion-item>
+    <ion-item *ngIf="driverFound == 2">
+      <span>{{ 'SEARCHING' | translate }}</span>
+      <!--<span class="pull-right">...</span>-->
+    </ion-item>
+    <ion-item *ngIf="driverFound == 3">
+      <span>{{ 'YOUR_BOOKING_ACCEPTED' | translate }}</span>
+      <!--<span class="pull-right">...</span>-->
+    </ion-item>
+
+    <ion-item *ngFor="let bid of bidList">
+        <span>{{bid.ContactedVehicles}}</span>
+        <span class="pull-right" *ngIf="bid.BidStatus == 'Open'"> {{ 'CONTACTING' | translate }}</span>
+      <span class="pull-right" *ngIf="bid.BidStatus == 'Accepted'"> {{ 'ACCEPTED_YOUR_BOOKING' | translate }} </span>
+    </ion-item>
+
+  </ion-list>
+
+  <ion-grid class="bottom-buttons">
+    <ion-row>
+      <ion-col width-30>
+
+      </ion-col>
+      <ion-col width-40>
+        <button ion-button block color="danger" (click)="cancelBooking()">{{ 'CANCEL' | translate }}</button>
+      </ion-col>
+      <ion-col width-30>
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+
+</ion-content>

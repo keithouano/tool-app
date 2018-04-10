@@ -1,0 +1,87 @@
+﻿<div id="custom-overlay" [style.display]="splash ? 'flex': 'none'">
+  <div class="flb">
+    <div class="Aligner-item Aligner-item--top"></div>
+    <img src="assets/img/log2.png">
+    <div class="Aligner-item Aligner-item--bottom"></div>
+  </div>
+</div>
+
+<!--
+  Generated template for the RegisterPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+<ion-content class=" auth-bg">
+  <div class="auth-content">
+
+    <div class="light-bg">
+
+      <!-- Logo -->
+      <div padding text-center>
+          <!-- <div class="logo primary-bg"> -->
+           <img src="assets/img/log2.png">
+          <!-- </div> -->
+         
+        </div>
+
+      <ion-list>
+        <ion-item class="no_border">
+          <ion-segment color="primary" [(ngModel)]="selLang">
+            <ion-segment-button value="en" (ionSelect)="chgLang('en')">
+              {{ 'ENGLISH' | translate }}
+            </ion-segment-button>
+            <ion-segment-button value="ar" (ionSelect)="chgLang('ar')">
+              {{ 'ARABIC' | translate }}
+            </ion-segment-button>
+          </ion-segment>
+       </ion-item>   
+      </ion-list>
+
+      <!-- Login form -->
+
+      <ion-list class="list-form" padding>
+
+        <ion-item>
+          <ion-input type="text" placeholder="{{ 'YOUR_NAME' | translate }}" [value]="name" [(ngModel)]="name"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input type="text" placeholder="{{ 'MOBILE_NO' | translate }}" [value]="mobileNo" [(ngModel)]="mobileNo"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input type="email" placeholder="{{ 'EMAIL' | translate }}" [value]="uName" [(ngModel)]="uName" ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input type="password" placeholder="{{ 'PASSWORD' | translate }}" [value]="pwd" [(ngModel)]="pwd"></ion-input>
+        </ion-item>
+      </ion-list>
+      <button  ion-button color="danger"  block (click)="signup()">
+          {{ 'CREATE_ACCOUNT' | translate }}
+        </button>
+     
+      
+      
+
+    </div>
+
+    <!-- Other links -->
+    <ion-grid>
+       
+        <ion-col text-center>
+          <span color="dark"  >{{ 'FORGOT_PASSWORD' | translate }}</span>
+        </ion-col>
+        <ion-col text-center>
+          <span color="dark" >
+            {{ 'HAVE_ACCOUNT' | translate }}
+            <span color="danger"  (click)="login()">{{ 'LOGIN' | translate }}</span>
+          </span>
+        </ion-col>
+    
+    </ion-grid>
+
+  </div>
+</ion-content>

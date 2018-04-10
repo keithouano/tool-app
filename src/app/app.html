@@ -1,0 +1,23 @@
+﻿<ion-menu [content]="content">
+
+  <ion-content class="menu-left">
+    <!-- User profile -->
+    <div text-center padding-top padding-bottom class="primary-bg menu-left">
+      <a menuClose>
+        <img class="profile-picture" src="{{customerPhotoUrl}}" onerror="this.onerror=null;this.src='assets/img/customer.jpg';" (click)="viewProfile()">
+        <h4 light></h4>
+      </a>
+    </div>
+
+    <ion-list class="list-full-border">
+      <button ion-item menuClose *ngFor="let page of pages" (click)="openPage(page)">
+        <ion-icon item-left name="{{ page.icon }}"></ion-icon>
+        {{ page.title | translate }}
+        <ion-badge color="danger" item-right *ngIf="page.count">{{ page.count }}</ion-badge>
+      </button>
+    </ion-list>
+  </ion-content>
+
+</ion-menu>
+
+<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>

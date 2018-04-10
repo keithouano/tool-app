@@ -1,0 +1,135 @@
+﻿<ion-header>
+  <ion-navbar color="primary" >
+    <button  ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ 'APP_TITLE' | translate }}</ion-title>
+
+    <ion-buttons end>
+      <button ion-button (click)="chgLang()">{{lang}}</button>
+
+    </ion-buttons>
+   
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content class="">
+  <!-- Show map here -->
+  <div id="mapId" name="map" [ngStyle]="{height: mapHeight + 'px'}"></div>
+
+  <div class="modal-bg black-transparent" [hidden]="!showModalBg"></div>
+
+   <!--Choose pickup and drop off places-->
+  <ion-list class="map-overlay list-full-border">
+    <ion-item style="height: 12px;">
+
+      <button ion-button clear color="primary" type="button" item-left> 
+        <ion-icon name="md-pin"> </ion-icon> 
+      </button>
+      <ion-input type="text" id="pickAddrId" [value]="pickupAddress" [(ngModel)]="pickupAddress" (focus)="pickupPlace()"></ion-input>
+
+    </ion-item>
+
+    <ion-item style="height: 12px;">
+
+      <button ion-button clear style="color: green" type="button" item-left> 
+        <ion-icon name="md-flag"> </ion-icon>
+      </button>         
+      <ion-input type="text" id="{{dropAddrId}}" [value]="dropAddress" [(ngModel)]="dropAddress" (focus)="dropPlace()"></ion-input>
+    </ion-item>
+
+    <ion-item style="height: 15px; padding-top: 3px;">
+      <ion-segment color="primary" [(ngModel)]="cashCard">
+        <ion-segment-button value="1" (ionSelect)="togglePayMode(1)">
+          {{ 'BY_CASH' | translate }}
+        </ion-segment-button>
+        <ion-segment-button value="2" (ionSelect)="togglePayMode(2)">
+          {{ 'BY_CARD' | translate }}
+        </ion-segment-button>
+      </ion-segment>        
+      &nbsp;
+      <div style="border-left:5px solid red;"></div>   
+      <button ion-button clear color="primary" type="button" (click)="toggleNotes()" item-right> 
+        {{ 'NOTES_TO_DRIVER' | translate }}
+      </button>           
+    </ion-item>
+
+    <ion-item [hidden]="!showNotes" style="height: 12px;">
+      <button ion-button clear color="dark" type="button" item-left> 
+        <ion-icon name="md-chatboxes"> </ion-icon>
+      </button>         
+      <ion-input #input type="text" id="notes" [value]="note" [(ngModel)]="note" style="width: 90%"></ion-input>
+    </ion-item>
+
+ </ion-list>
+
+
+  <div style="position: absolute; top:80%; right: 5%;" class="pull-right">
+    <img src="assets/img/my-position-green.png" width="20" height="20" (click)="centerMap(customerCurrentLat, customerCurrentLng)">
+  </div>
+
+  <!-- Booking information -->
+  <div class="booking-info">
+
+    <button  style="width:47%;" ion-button color="primary"  class="button-circle-2 button-next" [hidden]="showForm || showAdvForm" [disabled]="disableBtns" (click)="book(1)">{{ 'RIDE_NOW' | translate }}</button> 
+
+    <button  style="width:47%;" ion-button class="button-circle-3 button-next" [hidden]="showForm || showAdvForm" [disabled]="disableBtns" (click)="showAdvBookPopup()">{{ 'RIDE_LATER' | translate }}
+    </button> 
+
+    <div  [hidden]="!showAdvForm" style="background: #f8f8f8; width:100%; height: 300px;">
+
+
+          <h4 style="text-align: center; padding-top: 5px;">Schedule Ride</h4>
+     
+         <ion-toolbar> 
+          <ion-buttons class="pull-left">
+            <ion-list no-lines>
+              <ion-item>
+                <ion-label primary>{{ 'REPEAT' | translate }}</ion-label>
+                <ion-toggle color="energized" checked="false"></ion-toggle>
+              </ion-item>
+            </ion-list>
+          </ion-buttons>         
+          <ion-buttons end style="padding-bottom: 15px;">
+                  <button  ion-button color="primary"(click)="hideAdvBookPopup()">{{ 'CANCEL' | translate }}
+                  </button>
+          </ion-buttons>
+         </ion-toolbar>
+
+          <ion-list>
+
+            <ion-item  (click)="showCalendar()" style="text-align: center;font-weight: bold;">
+                
+            <input id="scheduledDate" type="text" style="text-align:center;background-color: #f8f8f8; border-style:none;" class="form-control" value="{{scheduledDate}}" >
+            </ion-item>
+
+            <ion-item  style="text-align: center;font-weight: bold; ">
+              <div class="clearfix">
+                <div class="input-group clockpicker pull-center" data-placement="top" data-align="top" data-autoclose="true">
+                  <input id="selHrMin" type="text" style="text-align:center;background-color: #f8f8f8;border-style:none;" class="form-control" value="{{scheduledTime}}" >
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
+                  </span>
+                </div>
+              </div>
+            </ion-item>
+			
+            <ion-item>
+                <button ion-button class="button-4" (click)="bookScheduled(2)">{{ 'REQUEST_SCHEDULE' | translate }}
+                </button>
+            </ion-item>
+          </ion-list> 
+
+   </div> 
+
+  </div>
+
+
+</ion-content>
+<!--<ion-footer>
+  <div style="text-align:center; color: blue; font-weight: bold">
+    Have a pleasant and comfort jouney with our friendly captain!!!
+  </div>
+
+</ion-footer>-->

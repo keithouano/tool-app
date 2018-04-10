@@ -1,0 +1,148 @@
+﻿<!--
+  Generated template for the HistoryPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="menublue" >
+    <button  ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{ 'TRIPS' | translate }}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+<div padding *ngIf="bookingHistoryData == null">
+   <img class="test" src="./assets/img/history.png" style="width:80px;margin: auto;display: block;">
+      <ion-row>
+        <ion-col></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col></ion-col>
+      </ion-row>
+     
+      <h5 style="text-align:center;color:#0091d4;">
+        <b>
+          {{'NO_BOOKING_HISTORY' | translate}}
+      </b></h5>
+      <ion-row>
+        <ion-col></ion-col>
+      </ion-row>
+
+        <p text-center>
+          <button ion-button icon-left clear small (click)="bookTrip(null, 0, 'D')">
+            {{ 'BOOK_A_TAXI' | translate }}
+          </button>
+        </p>
+
+  </div>
+  <ion-list class="list-full-border">
+
+    
+
+    <!--<ion-item *ngIf="bookingHistoryData == null ">
+      <ion-col>
+        {{'NO_BOOKING_HISTORY' | translate}}
+      </ion-col>
+      <ion-col>
+          <button ion-button icon-left clear small (click)="bookTrip(null, 0)">
+            <ion-icon name="ios-book"></ion-icon>{{ 'BOOK' | translate }}
+          </button>
+        </ion-col>
+    </ion-item>-->
+    <ion-item *ngFor="let history of bookingHistoryData">
+      <div>
+        <table border=0 class="{{history.sno == 1 ? 'row-blue' : 'row-black'}}">
+          <tr>
+            
+            <!--<ion-img style="width: 10px; height: 10px;" src="assets/img/car.png"></ion-img>-->
+            <td class='font-light'>
+              <!--{{ 'BOOKING_NO' | translate }}-->
+              <ion-icon name="md-car" color="danger"></ion-icon>
+            </td>
+            <td>&nbsp;</td>
+            <td>{{ history.BookingNo}}</td>
+          </tr>
+          <tr>           
+            <td class='font-light'>
+              <ion-icon name="md-calendar" color="danger"></ion-icon>              
+            </td>
+            <td>&nbsp;</td>
+            <td>{{history.PickupDateTime | date: 'dd/MM/yyyy H:mm'}}</td>
+          </tr>                  
+          <tr>
+            <td class='font-light'>
+              <ion-icon name="md-pin" color="danger"></ion-icon>                                      
+            </td>
+            <td>&nbsp;&nbsp;&nbsp;</td>
+            <td>{{ history.PickupAddress }}</td>
+          </tr>
+          <tr>
+            <td class='font-light'>
+              <ion-icon name="md-flag" color="danger"></ion-icon>
+            </td>
+            <td>&nbsp;&nbsp;</td>
+            <td>{{ history.DropAddress }}</td>
+          </tr>   
+          <tr *ngIf="history.Status == '5'">                                   
+            <td class='font-light'>
+              <ion-icon name="md-pricetag" color="danger"></ion-icon>              
+            </td>
+            <td>&nbsp;&nbsp;</td>
+            <td class='font-bold'>
+                {{history.fare | currency : currencyCode : 2}}
+                &nbsp;&nbsp;
+                <span *ngIf="history.PaymentMode == '2'">
+                  {{ 'CASH' | translate }}    
+                </span>  
+                <span *ngIf="history.PaymentMode == '1'">
+                  {{ 'CARD' | translate }}    
+                </span>  
+            </td>
+          </tr>          
+        </table>
+
+      <ion-row>
+        
+          <button ion-button icon-left clear small *ngIf="(history.Status == '1' || history.Status == '2' || history.Status == '3')" (click)="cancelBooking(history.BookingID)">
+            <ion-icon  name="ios-close-circle-outline"></ion-icon>
+            <div>{{ 'CANCEL' | translate }}</div>
+          </button>          
+        
+        <ion-col col-4 text-center color ="colRed">
+          <button color ="colRed" ion-button icon-left clear small *ngIf="history.Status == '5' && history.PaymentStatus == '0'  && hasCard == 1" (click)="payTrip(history.BookingID)">
+            <ion-icon color = "colRed" name="ios-card"></ion-icon>
+            &nbsp;&nbsp;
+            <div>{{ 'PAY' | translate }}</div>
+          </button>          
+        </ion-col>
+       
+
+          <button ion-button icon-left clear small *ngIf="history.Status == '5' && history.DriverRank == -1" (click)="rateTrip(history)">
+            <ion-icon name="thumbs-up"></ion-icon>
+            <div>{{ 'RATE' | translate }}</div>
+          </button>
+          
+        <ion-col col-4 text-center color ="colRed">
+          <button color ="colRed" ion-button icon-left clear small *ngIf="history.Status == '5' || history.Status == '6'" (click)="bookTrip(history, 0, 'H')">
+            <ion-icon color = "colRed" name="ios-book"></ion-icon>
+            &nbsp;&nbsp;
+            <div>{{ 'BOOK' | translate }}</div>
+          </button>
+        </ion-col>
+        <ion-col col-4 text-center color ="colRed">
+          <button color ="colRed" ion-button icon-left clear small *ngIf="history.Status == '5' || history.Status == '6'" (click)="bookTrip(history, 1, 'H')">
+            <ion-icon color = "colRed" name="ios-book"></ion-icon>
+            &nbsp;&nbsp;
+            <div >{{ 'REVERSE_BOOK' | translate }}</div>
+          </button>
+        </ion-col>        
+      </ion-row>
+      </div>
+    </ion-item>
+    
+  </ion-list>
+
+</ion-content>

@@ -1,0 +1,104 @@
+<!--
+  Generated template for the TripComplete page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+	<ion-navbar color="primary">
+		<ion-title>{{ 'FEEDBACK' | translate }}</ion-title>
+	</ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+	<ion-row style="border: 1px solid #049ED8; padding: 5px; margin-bottom: 3px; text-align:center;"> 
+		<ion-col col-12>
+			{{'REQUEST_FEEDBACK' | translate}}
+		</ion-col>
+	</ion-row>
+
+
+	<ion-row style="border: 1px solid #049ED8; margin-bottom: 3px;">
+		<ion-col col-3></ion-col>
+		<ion-col col-6>
+			<img *ngIf="!driverPhoto" class="circle icon pull-left" src="assets/img/driver.png" item-left alt="Photo" />
+
+			<img *ngIf="driverPhoto" class="circle icon pull-left" src="{{baseUrl.baseUrl}}{{ driverPhoto }}" item-left alt="Photo" onerror="this.onerror=null;this.src='assets/img/driver.png';" />
+		</ion-col>
+		<ion-col col-3></ion-col>
+	</ion-row>
+
+	<ion-row style="border: 1px solid #049ED8; margin-bottom: 3px;">
+		<ion-col col-4>
+			<span>Driver Name : </span>
+		</ion-col>
+
+		<ion-col col-8>
+			{{ driverRateInfo.DriverName }}
+		</ion-col>
+	</ion-row>
+
+
+	<ion-row style="border: 1px solid #049ED8; margin-bottom: 3px;">
+		<ion-col col-4>
+			<span>Vehicle No. : </span>
+		</ion-col>
+
+		<ion-col col-8>
+			{{ driverRateInfo.VehicleNo }}
+		</ion-col>
+	</ion-row>
+
+	<ion-row>
+		<ion-col col-12 style="border : 1px solid #049ED8; margin-bottom: 3px;">
+			<div style="padding-left:10px; padding-bottom: 5px; text-align: center;">
+
+				<img *ngIf="selectedDriverRank>=1" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(1)" />
+				<img *ngIf="selectedDriverRank<1" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(1)" />
+
+				<img *ngIf="selectedDriverRank>=2" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(2)" />
+				<img *ngIf="selectedDriverRank<2" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(2)" />
+
+				<img *ngIf="selectedDriverRank>=3" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(3)" />
+				<img *ngIf="selectedDriverRank<3" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(3)" />
+
+				<img *ngIf="selectedDriverRank>=4" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(4)" />
+				<img *ngIf="selectedDriverRank<4" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(4)" />
+
+				<img *ngIf="selectedDriverRank>=5" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(5)" />
+				<img *ngIf="selectedDriverRank<5" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="30" height="30"
+				 (click)="rateDriver(5)" />
+
+			</div>
+		</ion-col>
+	</ion-row>
+
+	<ion-row>
+		<ion-item style="border: 1px solid #049ED8;">
+			<ion-label stacked>{{ 'COMMENT' | translate }}</ion-label>
+			<ion-input type="text" id="comment" [value]="comment" [(ngModel)]="comment"></ion-input>
+		</ion-item>
+
+	</ion-row>
+
+	<ion-row>
+		<ion-col col-3></ion-col>
+		<ion-col col-6>
+			<button ion-button color="primary" class="button-circle-2 button-next" (click)="submitRate()">{{ 'SUBMIT' | translate }}</button>
+		</ion-col>
+		<ion-col col-3></ion-col>
+	</ion-row>
+</ion-content>

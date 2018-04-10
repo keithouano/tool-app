@@ -1,0 +1,30 @@
+page-login
+{
+   .light-bg
+   {
+       background:transparent!important;
+   } 
+   ion-label
+   {
+       background: transparent!important;
+    //    color: #0091d4!important;
+   }
+   ion-item
+   {
+       background: transparent!important;
+    //    border-radius:10px!important;
+       border-bottom:2px #0091d4 solid!important;
+    //    color: white!important;
+   }
+   
+   h2 
+   {
+       color: white!important;
+   }
+   button 
+   {
+    border-radius:10px!important;
+   }
+  
+
+}

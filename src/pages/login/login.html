@@ -1,0 +1,79 @@
+﻿<!--
+  Generated template for the LoginPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+<ion-content class=" auth-bg" overflow-scroll="false" scroll="true">
+
+  <div class="auth-content">
+
+    <div class="light-bg">
+
+      <!-- Logo -->
+      <div padding text-center>
+        <!-- <div class="logo primary-bg"> -->
+         <img src="assets/img/log2.png" onerror="this.onerror=null;this.src='';">
+        <!-- </div> -->
+       
+      </div>
+
+     
+      <!-- Login form -->
+     
+   
+      <ion-list class="list-form" padding>
+        <form [formGroup]="loginForm" (submit)="login()">
+        <ion-item>
+          
+          <ion-label color="primary" floating>&nbsp;&nbsp;{{ 'EMAIL_MOBILE' | translate }}</ion-label>
+          <ion-input color="dark" #input type="text" id="uName" formControlName="uName" [value]="uName" [(ngModel)]="uName"></ion-input>
+        </ion-item>
+          <div [hidden]="loginForm.controls.uName.valid || (loginForm.controls.uName.pristine && !loginForm.controls.uName.touched)" class="validation-message">
+                <ion-label color="danger">Email or Mobile field cannot be blank</ion-label>
+        </div>
+        <br>
+        <ion-item>
+          
+          <ion-label color="primary" floating>&nbsp;&nbsp;{{ 'PASSWORD' | translate }}</ion-label>
+          <ion-input color="dark"   type="password" id="passWord" formControlName="pwd" [value]="pwd" [(ngModel)]="pwd" ></ion-input>
+        </ion-item>
+          <div [hidden]="loginForm.controls.pwd.valid || (loginForm.controls.pwd.pristine && !loginForm.controls.pwd.touched)" class="validation-message">
+              <ion-label color="danger">Password field cannot be blank</ion-label>
+          </div>
+          <br>   <br>
+         
+        <!-- <button  ion-button color="primary"  block [disabled]="!loginForm.valid"> -->
+            <button  ion-button color="danger"  block>
+          {{ 'LOGIN' | translate }}
+        </button>
+      
+
+          </form>
+      </ion-list>
+
+      
+
+    </div>
+
+   
+
+    <!-- Other links -->
+    <ion-grid>
+      <ion-row>
+        <!--<ion-col>
+          <span color="light" >Forgot password?</span>
+        </ion-col>-->
+        <ion-col text-center>
+          <span color="dark" >
+            {{ 'NEW_HERE' | translate }}
+            <span color="danger"  (click)="signup()">Sign up</span>
+          </span>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </div>
+</ion-content>
+

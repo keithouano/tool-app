@@ -1,0 +1,101 @@
+﻿<!--
+  Generated template for the TrackingPage page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+  <ion-navbar color="primary" >
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>
+      <span>{{tripStatus}}</span>
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Show map here -->
+  <div id="map" [ngStyle]="{height: mapHeight + 'px'}"></div>
+
+
+  <div id="drv-info-id" style="height: 260px;margin-top:-5%;">
+
+  <div style="height: 20px;"></div>
+    
+  <table border=0 width=100%>
+    <tr>
+        <td colspan="3">
+          <hr>
+        </td>  
+    </tr>  
+    <tr>
+      <td col=30% style="vertical-align: middle; text-align: center;">
+        <img *ngIf="!driverPhoto" class="circle icon pull-left" src="assets/img/driver.png" item-left alt="Photo" width="40" height="40" style="margin-left:25%;"/>
+
+        <img *ngIf="driverPhoto" class="circle icon pull-left" src="{{baseUrl.baseUrl}}{{ driverPhoto }}" item-left alt="Photo" width="40" height="40"  onerror="this.onerror=null;this.src='assets/img/driver.png';" style="margin-left:25%;"/>
+      </td>
+      <td width="30%" style="vertical-align: middle; text-align: center;">
+          {{ driverInfo.DriverName }}         
+      </td>
+      <td width="40%" style="vertical-align: middle; text-align: center;">
+          <img *ngIf="driverInfo.DriverRank>=1" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="20" height="20"/>
+          <img *ngIf="driverInfo.DriverRank<1" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="20" height="20"/>
+
+          <img *ngIf="driverInfo.DriverRank>=2" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="20" height="20"/>
+          <img *ngIf="driverInfo.DriverRank<2" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="20" height="20"/>
+
+          <img *ngIf="driverInfo.DriverRank>=3" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="20" height="20"/>
+          <img *ngIf="driverInfo.DriverRank<3" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="20" height="20"/>
+
+          <img *ngIf="driverInfo.DriverRank>=4" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="20" height="20"/>
+          <img *ngIf="driverInfo.DriverRank<4" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="20" height="20"/>
+
+          <img *ngIf="driverInfo.DriverRank>=5" class="circle icon" src="assets/img/star1.png" item-left alt="Photo" width="20" height="20"/>
+          <img *ngIf="driverInfo.DriverRank<5" class="circle icon" src="assets/img/star_grey1.png" item-left alt="Photo" width="20" height="20"/>
+      </td>  
+    </tr>
+    <tr>
+        <td colspan="3">
+          <hr>
+        </td>  
+    </tr>  
+
+    <tr>
+      <td style="vertical-align: middle; text-align: center;">
+          {{ driverInfo.VehicleNo }}
+      </td>
+      <td colspan="2" width="60%" style="vertical-align: middle; text-align: center;">
+          <table border=0 cellpadding="0" width="100%">
+            <tr>
+              <td width="25%" *ngIf="drvReached=='0' || drvReached=='1'" >                
+                <img class="circle icon" src="assets/img/cancel2.png" item-left alt="Cancel" width="30" height="30" (click)="cancelBooking()"/>
+              </td>
+              <td width="25%" *ngIf="drvReached!='0' && drvReached!='1'" >                
+                &nbsp;
+              </td>
+              <td width="25%">
+                <img class="circle icon" src="assets/img/call-driver-green-icon.png" item-left alt="Call" width="30" height="30" (click)="call()"/>
+              </td>
+              <td width="25%">             
+                <img class="circle icon" src="assets/img/icon-share-trip-green.png" item-left alt="Share" width="30" height="30" (click)="shareTrip()"/>
+              </td>
+              <td width="25%">
+                <img class="circle icon" src="assets/img/emergency-sos-icon.png" item-left alt="SOS" width="30" height="30" (click)="sendSOS()"/>
+              </td>  
+            </tr>
+        </table>
+      </td>      
+    </tr>
+    <tr>
+        <td colspan="3">
+          <hr>
+        </td>  
+    </tr>        
+  </table>  
+    
+  </div>
+
+</ion-content>

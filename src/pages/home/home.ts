@@ -1,0 +1,1031 @@
+﻿import { Component, ViewChild, NgModule, ChangeDetectorRef} from '@angular/core';
+import { NavController, Platform, AlertController, ModalController, NavParams, LoadingController } from 'ionic-angular';
+import { StatusBar, Device, Geolocation, BackgroundMode } from 'ionic-native';
+import {PlacesPage} from '../places/places';
+import { PaymentMethodPage } from '../payment-method/payment-method';
+import { FindingPage } from "../finding/finding";
+import { TripCompletePage } from '../trip-complete/trip-complete';
+
+
+import { maplatlng, serviceUrl, currentLatLng, LogDetails, paymentDetails, DriverDetails, HomeNav, FindingNav,LiveVehicleDetails,customerCurrentLatLng, trackingTrip, SystemParams } from "../../services/root-scope";
+import { PaymentDetailsPage } from '../payment-details/payment-details';
+import { PromotionsPage } from '../promotions/promotions';
+import { Http } from '@angular/http';
+
+import {TranslateService} from '@ngx-translate/core';
+import { DatePicker } from 'ionic2-date-picker/ionic2-date-picker';
+import { Content } from 'ionic-angular';
+
+declare var google: any;
+declare var $: any;
+
+/*
+ Generated class for the HomePage page.
+
+ See http://ionicframework.com/docs/v2/components/#navigation for more info on
+ Ionic pages and navigation.
+ */
+@Component({
+  selector: 'page-home',
+  templateUrl: 'home.html',
+  providers: [ DatePicker ]
+})
+export class HomePage {
+  @ViewChild(Content) content: Content;
+  @ViewChild('input') inputPromoCode ;
+  @ViewChild('input') inputNote ;
+
+  public vehIcon = {
+      url: "assets/img/taxi-white-bg-green-taxi.png",
+      scaledSize: new google.maps.Size(30, 30),
+      origin: new google.maps.Point(0,0),
+      anchor: new google.maps.Point(0, 0)
+  };
+
+  public newCenterIcon = {
+      url: "assets/img/map-position-green-icon.png",
+      scaledSize: new google.maps.Size(22, 30),
+      origin: new google.maps.Point(0,0),
+      anchor: new google.maps.Point(0, 0)
+  };  
+
+  public pickupAddress: any = '';
+  public dropAddress: any;
+  public promoCode: any;
+ 
+  currentLat: any;
+  currentLng: any;
+  customerCurrentLat : any;
+  customerCurrentLng : any;
+  dropLat : any;
+  dropLng: any;
+
+  public pickup: any;
+  public drop: any;
+  public data: any;
+  public baseUrl: any;
+  public http: any;
+  public homeNav: any;
+  public findingNav: any;
+  autocompleteItems;
+  autocomplete;
+  public startLoc: any;
+  public endLoc: any;
+  service = new google.maps.places.AutocompleteService();
+  public pickAddrId = Math.random() + 'pickAddr';
+  public dropAddrId = Math.random() + 'dropAddr';
+  public componentForm: any;
+  public lang: any = 'en';
+  public scheduledDate: any;
+  public scheduledTime: any;
+  public scheduledHr: any;
+  public scheduledMin: any;
+  public hours: any = [];
+  public mins: any = [];  
+  public bookingType: any = 1;
+  public vehList: any = [];
+  public vehMarkerList: any = [];
+  public newCenterMarker: any;
+  public newFormattedAddress: any;
+  public localDate: any;
+  public payMode : any;
+
+  public tabBarElement: any; 
+
+  // map id
+  public mapId = "mapId";//Math.random() + 'map';
+
+  // map height
+  public mapHeight: number = 645;
+
+  // show - hide booking form
+  public showForm: boolean = false;
+  public showAdvForm: boolean = false;
+  public showPromo: boolean = false;
+  public showNotes: boolean = false;
+
+
+  // show - hide modal bg
+  public showModalBg: boolean = false;
+
+  // list vehicles
+  public vehicles: any = [
+    {
+      name: 'TAXI',
+      icon: 'icon-taxi',
+      active: true
+    },
+    {
+      name: 'SUV',
+      icon: 'icon-car',
+      active: false
+    },
+    {
+      name: 'CAR',
+      icon: 'icon-sedan',
+      active: false
+    }
+  ]
+
+  // Note to driver
+  public note: any;
+
+  // Promo code
+  public promo: any;
+
+  // Map
+  public map: any;
+
+  public translate: any;
+  public okBtn: any;
+  private distance:any;
+  private hasCard : any;
+  private chkCash:any;
+  private chkCard:any;
+  private chkNotes:any;
+  private cashCard:any;
+  private disableBtns:any;
+  private clrInterval: any;
+
+  constructor(public nav: NavController, public datePicker: DatePicker, http: Http, public params: NavParams, public platform: Platform, public alertCtrl: AlertController, private modalCtrl: ModalController, translate: TranslateService, public loadingController: LoadingController, private cd: ChangeDetectorRef) {
+
+      this.pickupAddress = {};
+
+      console.log('init');
+      this.baseUrl = serviceUrl;
+      this.nav = nav;
+      this.http = http;
+      this.data = {};
+      this.homeNav = HomeNav.paymentScreen;
+      this.findingNav = FindingNav.findingScreen;
+      this.translate = translate;
+      this.payMode = 1;
+      this.hasCard = LogDetails.hasCard;
+      
+      this.chkCash = true;
+      this.chkCard  = false;
+      this.chkNotes = false;
+      this.cashCard = "1";
+
+      this.componentForm = {
+          street_number: 'short_name',
+          route: 'long_name',
+          locality: 'long_name',
+          administrative_area_level_1: 'short_name',
+          country: 'long_name',
+          postal_code: 'short_name'
+      };
+
+      console.log("home view ", maplatlng.homeView);
+
+      platform.ready().then(() => {
+
+        translate.use(LogDetails.language);
+
+        this.okBtn = this.translate.get("OK").value;
+
+        if(LogDetails.language == 'en') {
+          this.lang = this.translate.get('ARABIC').value;
+        } else {
+          this.lang = 'English';
+        }
+
+        setTimeout(this.initjquery(), 1000);
+
+        this.customerCurrentLat = customerCurrentLatLng.latitude;
+        this.customerCurrentLng = customerCurrentLatLng.longitude;
+        
+        if (maplatlng.homeView == "D") {
+
+          this.currentLat = currentLatLng.latitude;
+          this.currentLng = currentLatLng.longitude;
+
+          console.log("addr2");   
+          this.pickupAddress = currentLatLng.formattedAddress;
+          this.dropAddress = '';
+          setTimeout(this.initializeMap(0), 2000);
+
+          this.getCurrentLatLngAndInitMap();
+
+        } else {
+
+          this.pickupAddress = maplatlng.pickup;
+          this.dropAddress = maplatlng.dropoff;
+
+          this.currentLat = maplatlng.pickupLatLng[0];
+          this.currentLng = maplatlng.pickupLatLng[1];
+
+          this.dropLat = maplatlng.dropLatLng[0];
+          this.dropLng = maplatlng.dropLatLng[1];
+
+          setTimeout(this.initializeMap(0), 2000);
+          this.drawRoute();
+
+          //this.getCurrentLatLngAndInitMap();
+        }
+      });
+
+      this.datePicker.onDateSelected.subscribe( 
+        (date) => {
+          console.log(date);
+          this.scheduledDate = this.getFormattedDate(date);
+      });
+
+      var dt = this.getScheduledDate();
+      this.scheduledTime = this.getFormattedTime(dt);
+
+      this.tabBarElement = document.querySelector('.tabbar.show-tabbar'); 
+
+      this.disableBtns = false;
+
+      this.startGetVehicles();
+
+  }
+
+  initjquery() {
+
+    console.log("jquery loaded...", $.fn.jquery);
+    $('.clockpicker').clockpicker({
+      twelvehour: true
+    })
+      .find('input').change(function(){
+        console.log(this.value);
+      });
+
+  }
+  
+  // toggle form
+  toggleForm() {
+    this.showForm = !this.showForm;
+    this.showModalBg = (this.showForm == true);
+  }
+
+   //toggle active vehicle
+  toggleVehicle(index) {
+    for (var i = 0; i < this.vehicles.length; i++) {
+      this.vehicles[i].active = (i == index);
+    }
+  }
+
+  initializeMap(src) {
+      
+      console.log("curLat : "+this.currentLat+" , curLng : "+this.currentLng);
+
+      if (this.currentLat != "" && this.currentLng != "") {
+        let mapOptions = {
+          center: { lat: this.currentLat, lng: this.currentLng},
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapTypeControl: false,
+          zoomControl: false,
+          streetViewControl: false
+        }     
+
+      let options = { timeout: 120000, enableHighAccuracy: true };
+      // get ion-view height
+      var viewHeight = window.screen.height - 44; // minus nav bar
+      // get info block height
+      var infoHeight = document.getElementsByClassName('booking-info')[0].scrollHeight;
+      // get booking form height
+      var bookingHeight = 0;// document.getElementsByClassName('booking-form')[0].scrollHeight;
+
+      if (src != 2)
+        this.mapHeight = viewHeight - infoHeight + bookingHeight;
+
+      this.map = null;
+      this.map = new google.maps.Map(document.getElementById("mapId"), mapOptions);
+      var self = this;
+      console.log("new center map1. src ", src, this.currentLat, this.currentLng);
+      if (src == 0 || src == 2)
+        self.setNewCenterMarker(this.currentLat, this.currentLng);
+
+    }
+    this.bindMapClick();
+  }
+
+  drawRoute() {
+
+    if (this.pickupAddress != '' && this.dropAddress != '') {
+
+      var directionsDisplay = new google.maps.DirectionsRenderer;
+      var directionsService = new google.maps.DirectionsService;
+
+      directionsDisplay.setDirections({routes: []});
+      directionsDisplay.setMap(this.map);
+
+      this.calculateAndDisplayRoute(directionsService, directionsDisplay, this.pickupAddress, this.dropAddress);
+    }
+  }
+
+  calcCeterOfBound(bounds) {
+
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
+
+    var lat = (sw.lat() + ne.lat())/2;
+    var lng = (sw.lng() + ne.lng())/2;
+
+    return {lat: lat, lng: lng};  
+  }
+
+  calculateAndDisplayRoute(directionsService, directionsDisplay, inOrigin, inDest) {
+      console.log("in origin & dest ", inOrigin, inDest);      
+      var selectedMode = "DRIVING";
+      var origin = inOrigin;
+      var dest = inDest;
+      directionsService.route({
+          origin: origin,
+          destination: dest,
+          travelMode: google.maps.TravelMode[selectedMode]
+      }, function (response, status) {
+          if (status == 'OK') {
+              directionsDisplay.setDirections(response);
+          } else {
+              console.log('Directions request failed due to ' + status);
+          }
+      });
+  }
+
+
+  // Show note popup when click to 'Notes to driver'
+  showNotePopup() {
+    let prompt = this.alertCtrl.create({
+      title: this.translate.get("NOTES_TO_DRIVER").value,
+      message: "",
+      inputs: [
+        {
+          name: 'note',
+          placeholder: this.translate.get("NOTE").value
+        },
+      ],
+      buttons: [
+        {
+          text: this.translate.get("CANCEL").value,
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: this.translate.get("SAVE").value,
+          handler: data => {
+              console.log('Saved clicked', data);
+              this.note = data.note;
+          }
+        }
+      ]
+    });
+
+    prompt.present();
+  };
+
+  // Show promote code popup when click to 'Promote Code'
+  showPromoPopup() {
+    let prompt = this.alertCtrl.create({
+      title: this.translate.get("PROMO_CODE").value,
+      message: "",
+      inputs: [
+        {
+          name: 'note',
+          placeholder: this.translate.get("PROMO_CODE").value
+        },
+      ],
+      buttons: [
+        {
+          text: this.translate.get("CANCEL").value,
+          handler: data => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: this.translate.get("SAVE").value,
+          handler: data => {
+              console.log('Saved clicked');
+
+          }
+        }
+      ]
+    });
+
+    prompt.present();
+  };
+
+  chgLang() {
+
+      if (LogDetails.language == 'ar') {       
+        LogDetails.language = 'en';
+        this.lang = this.translate.get("ARABIC").value; 
+      } else {
+        LogDetails.language = 'ar';
+        this.lang = 'English';        
+      }
+      
+      setTimeout(() => {
+        this.translate.use(LogDetails.language);        
+        this.cd.detectChanges();
+      }, 300);
+  } 
+
+  showAdvBookPopup() {
+    
+    this.showAdvForm = true;
+
+    if (!this.scheduledDate) {
+      this.scheduledDate = this.getScheduledDate();
+      this.scheduledDate = this.getFormattedDate(this.scheduledDate);
+    }
+    console.log("show adv form", this.showForm, this.showAdvForm, this.scheduledDate);
+
+    this.cd.detectChanges();
+  };
+
+  getFormattedDate(date) {
+
+    var day = date.getDate();
+    day = day<10 ? "0"+day : day;   
+    var month = date.getMonth() + 1;
+    month = month<10 ? "0"+month : month;
+    var year = date.getFullYear();
+
+    return year + "-" + month + "-" + day; 
+  }
+
+  getFormattedTime(date) {
+
+    var hour = date.getHours();
+    var ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour >= 12 ? hour%12 : hour;    
+    hour = hour<10 ? "0"+hour : hour;   
+    var min = date.getMinutes();
+    min = min<10 ? "0"+min : min;
+
+    return hour + ":" + min+ampm; 
+  }
+
+  hideAdvBookPopup() {
+    
+    this.showAdvForm = false;
+    this.showForm = false;
+    this.showModalBg = false;
+
+    this.initializeMap(2);    
+    this.cd.detectChanges();
+  }
+
+  //Book Scheduled 
+  bookScheduled(bookingType) {
+
+    //if (!this.scheduledTime)
+    var hrmin = (<HTMLInputElement>document.getElementById("selHrMin"));
+    if (hrmin != null)
+      this.scheduledTime = hrmin.value;
+
+    if (bookingType == 2 && (!this.scheduledDate || !this.scheduledTime)) {
+      let alert = this.alertCtrl.create({
+          title: this.translate.get("BOOKING_ERROR").value,
+          subTitle: this.translate.get('SCHEDULED_DATETIME_REQ').value,
+          buttons: [this.okBtn]
+      });
+      alert.present();
+      return;
+    }
+
+
+    this.book(bookingType);
+
+  }
+
+  // go to next view when the 'Book' button is clicked
+  book(bookingType) {
+
+     if (this.pickupAddress == '' || this.dropAddress == '') {
+        let alert = this.alertCtrl.create({
+            title: this.translate.get("BOOKING_ERROR").value,
+            subTitle: this.translate.get('PICKUP_ADDRESS_REQD').value,
+            buttons: [this.okBtn]
+        });
+        alert.present();
+        return;
+     }
+
+    // hide booking form
+      this.disableBtns = true;
+
+      this.toggleForm();
+      var radius = SystemParams.radius;
+      this.bookingType = bookingType;
+
+      var retArrary = new Array(2);
+
+      var self = this;
+
+      if (self.pickupAddress != '') {
+
+        self.getLatLngFromAddress(self.pickupAddress).then (function(retArrary) {
+          
+          self.currentLat = retArrary[0];
+          self.currentLng = retArrary[1];
+
+          if (self.dropAddress != '') {
+            self.getLatLngFromAddress(self.dropAddress).then (function(retArrary) {
+                
+              self.dropLat = retArrary[0];
+              self.dropLng = retArrary[1];
+              self.postBookData(radius);
+            });      
+          } else {
+            self.postBookData(radius);
+          }            
+        });
+      }
+      
+  }
+
+  postBookData(radius) {
+
+      var reqData = JSON.stringify({ pickup: this.pickupAddress, dropoff: this.dropAddress, drivernote: this.note, customerId: LogDetails.customerId, pickupLatitude: this.currentLat, pickupLongitude: this.currentLng, radius: radius, promoCode: this.promoCode, bookingType:this.bookingType, scheduledDate: this.scheduledDate, scheduledTime: this.scheduledTime, dropLatitude: this.dropLat, dropLongitude: this.dropLng, distance: this.distance, payMode: this.payMode, sessionId: LogDetails.sessionId, note: this.note });
+
+      console.log("Booking data to post ", reqData);
+
+      this.http.post(this.baseUrl.baseUrl + 'service/saveBooking/', reqData)
+          .subscribe(resp => {
+              console.log(resp);
+              console.log("response : " + resp._body);
+              this.data.response = JSON.parse(resp._body);
+
+              if (this.data.response.status == 'Success') {
+                  // go to finding page
+                  DriverDetails.bookingId = this.data.response.bookingId;
+                  console.log("Booking Details :" + DriverDetails.bookingId);
+                  if (DriverDetails.bookingId != "") {
+                      console.log("Booking No : " + DriverDetails.bookingId);
+
+                      if (this.bookingType == 1) {
+                      
+                        trackingTrip.pickup = this.pickupAddress;
+                        trackingTrip.drop = this.dropAddress;                       
+
+                        this.nav.push(FindingPage);
+                      } else {
+                        this.bookingType = 1;
+
+                        this.scheduledDate = this.getFormattedDate(this.getScheduledDate());
+
+                        this.pickupAddress = currentLatLng.formattedAddress;
+                        this.dropAddress = '';
+                        this.showAdvForm = false;
+                        this.showForm = false;
+                        this.showModalBg = this.showForm ? true : false;
+
+                        let alert = this.alertCtrl.create({
+                            title: this.translate.get("BOOKING").value,
+                            subTitle: "Your scheduled booking request is successfully submitted."
+                        });
+                        alert.addButton({
+                            text: this.okBtn,
+                            handler: data => {
+
+                                this.map.setCenter(new google.maps.LatLng(currentLatLng.latitude,currentLatLng.longitude));
+                                var directionsDisplay = new google.maps.DirectionsRenderer;
+                                directionsDisplay.setDirections({routes: []});
+                                this.map.setZoom(16);
+                            }
+                        });                        
+                        alert.present();
+
+                      }  
+                  }
+              }
+              else if (!this.data.response.success) {
+
+                  let alert = this.alertCtrl.create({
+                      title: this.translate.get("BOOKING_ERROR").value,
+                      subTitle: this.translate.get(this.data.response.messageCode).value,//this.data.response.message,
+                      buttons: [this.okBtn]
+                  });
+                  alert.present();
+              }
+          }, error => {              
+              let alert = this.alertCtrl.create({
+                  title: this.translate.get("UNKNOWN_ERROR").value,
+                  subTitle: this.translate.get("SOMETHING_WENT_WORNG_TRY_AGAIN_AFTER_SOMETIME").value,
+                  buttons: [this.okBtn]
+              });
+              alert.present();
+          });
+
+  }
+
+  // choose pickup place
+  pickupPlace() {
+
+      clearInterval(this.clrInterval);
+
+      var self = this;
+
+      let modal = this.modalCtrl.create(PlacesPage);
+      modal.onDidDismiss(data => {
+          if (data) {
+
+            self.pickupAddress = data;
+            maplatlng.pickup = data;
+            self.initializeMap(1);
+            self.drawRoute();
+          
+            var retArrary = new Array(2);
+            self.getLatLngFromAddress(self.pickupAddress).then (function(retArrary) {
+
+              self.currentLat = retArrary[0];  
+              self.currentLng = retArrary[1]
+
+              self.clearAllVehicles();
+              self.centerMap(self.currentLat, self.currentLng);
+              self.showNearByVehicles(self.currentLat, self.currentLng);
+              self.setNewCenterMarkerOnly(self.currentLat, self.currentLng); 
+
+              self.startGetVehicles();  
+            });
+          }
+      });
+      modal.present();
+  }
+
+  // choose drop place
+  dropPlace() {
+
+      // go to places page  
+      let modal = this.modalCtrl.create(PlacesPage);
+      let me = this;
+      modal.onDidDismiss(data => {
+          if (data) {
+              this.dropAddress = data;
+              maplatlng.dropoff = data;
+              this.initializeMap(1);
+              this.drawRoute();
+          }
+      });
+      modal.present();
+  }
+
+  // choose payment method
+  choosePaymentMethod() {
+    // go to payment method page
+
+    this.nav.push(PaymentMethodPage, {
+      pickupAddress: this.pickupAddress, dropAddress: this.dropAddress, note: this.note
+    })
+  }
+
+  choosePaymentDetails() {
+      let modal2 = this.modalCtrl.create(PaymentDetailsPage);
+      let me = this;
+      modal2.onDidDismiss(data => {
+      });
+      modal2.present();
+  }
+
+  ionViewDidLoad() {
+
+  }
+
+  getPickupAddress() {
+    
+    Geolocation.getCurrentPosition({ enableHighAccuracy: true }).then((resp) => {
+
+        currentLatLng.latitude = resp.coords.latitude;
+        currentLatLng.longitude = resp.coords.longitude;
+        var latlng = { lat: resp.coords.latitude, lng: resp.coords.longitude };
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'location': latlng }, function (results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+
+                    currentLatLng.formattedAddress = results[0].formatted_address;
+                    
+                }
+            }
+        });
+        }).catch((error) => {
+        
+    });
+        
+  }
+
+  promoList() {
+
+      let modal = this.modalCtrl.create(PromotionsPage);
+      let me = this;
+      modal.onDidDismiss(data => {
+          if (data) {
+              this.promoCode = data.PromoCode;
+          }
+      });
+      modal.present();
+  }
+
+ showNearByVehicles(lat, lng): any {
+
+      var self = this;
+
+      /*let loader = self.loadingController.create({
+            content: self.translate.get('SERVICE_INPROGRESS').value
+          });  
+      loader.present();*/
+      
+      var reqData = JSON.stringify({ lat: lat, lng : lng });
+      self.http.post(this.baseUrl.baseUrl + 'service/fetchNearbyVehicles/', reqData)
+          .subscribe(resp => {
+
+        self.data.response = JSON.parse(resp._body);              
+
+              //loader.dismiss();
+              if (self.data.response.status == 'Success') {
+                var objList = this.data.response.vehiclesList;
+                
+                if (objList.length) {
+                  var vehObj;
+                  for (var i=0; i<=objList.length-1; i++) {
+                    vehObj = new Object();
+                    vehObj.vehicleLat = objList[i].Latitude;
+                    vehObj.vehicleLng = objList[i].Longitude;
+                    vehObj.vehicleType = 'Standard';
+                    this.vehList[i] = vehObj;
+                  }
+
+                  self.displayNearByVehicles(this.vehList);
+                }
+
+                return this.vehList;
+              } else {
+                return [];
+              }
+          }, error => {
+            return [];
+          });
+    }
+
+    displayNearByVehicles(vehList) {
+
+      var marker;
+
+      this.vehMarkerList = [];
+
+      for(var i=0; i<=vehList.length-1;i++) {
+
+        marker = new google.maps.Marker({
+          map: this.map,
+          position: { lat: vehList[i].vehicleLat, lng: vehList[i].vehicleLng },
+            icon: this.vehIcon
+          });
+
+          this.vehMarkerList.push(marker);
+      }
+    }
+
+
+    bindMapClick() {
+
+        var self = this;
+
+        google.maps.event.addListener(self.map, "click", (event) => {
+
+            self.clearAllVehicles();
+            self.centerMap(event.latLng.lat(), event.latLng.lng());
+            self.showNearByVehicles(event.latLng.lat(), event.latLng.lng());
+        });
+    };
+
+    clearAllVehicles() {
+
+      for (var i = 0; i < this.vehMarkerList.length; i++) {
+        this.vehMarkerList[i].setMap(null);
+      }
+    }
+
+    togglePromo() {
+      this.showPromo = !this.showPromo;    
+
+      if (this.showPromo) {
+        setTimeout(() => {
+          this.inputPromoCode.setFocus();
+        }, 150);
+      }
+    }
+
+    toggleNotes() {
+
+      this.showNotes = !this.showNotes;
+
+      if (this.showNotes) {
+        //setTimeout(() => {
+        //  this.inputNote.setFocus();
+        //}, 150);
+      } 
+
+      this.content.scrollToTop();
+
+      this.cd.detectChanges();
+    }
+
+    centerMap(lat, lng) {
+
+      this.map.setCenter(new google.maps.LatLng(lat,lng));
+
+      this.currentLat = lat;
+      this.currentLng = lng;
+      
+      this.initializeMap(0);
+      this.drawRoute();    
+    }
+
+    ionViewDidEnter() {
+      setTimeout(() => {
+        //this.pickupAddress = currentLatLng.formattedAddress;
+        if (this.tabBarElement) {
+          this.tabBarElement.style.display = 'none';
+          this.content.resize();
+        }
+      }, 200);
+    }
+
+
+    setNewCenterMarkerOnly(lat, lng) {
+
+      if (this.newCenterMarker)
+        this.newCenterMarker.setMap(null);
+
+      this.newCenterMarker = new google.maps.Marker({
+        map: this.map,
+        position: { lat: lat, lng: lng },
+          icon: this.newCenterIcon
+      });
+    }
+
+    setNewCenterMarker(lat, lng) {
+
+      if (this.newCenterMarker)
+        this.newCenterMarker.setMap(null);
+
+      this.newCenterMarker = new google.maps.Marker({
+        map: this.map,
+        position: { lat: lat, lng: lng },
+          icon: this.newCenterIcon
+      });
+
+      this.getAddressFromLatLng(lat, lng);
+    }
+
+    getAddressFromLatLng(lat, lng) {
+      var self = this;
+
+      var latLng = new google.maps.LatLng(lat, lng);
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ 'location': latLng }, function (results, status) {
+          if (status === 'OK') {
+              if (results[0]) {
+
+                  self.newFormattedAddress = results[0].formatted_address;
+                  self.pickupAddress = self.newFormattedAddress;
+
+                  self.cd.detectChanges();
+              }
+              
+          }
+      });
+      
+      setTimeout(() => {
+        self.pickupAddress = self.newFormattedAddress;
+      }, 500);
+    }    
+
+  showCalendar(){
+    this.datePicker.showCalendar();
+
+    setTimeout(() => {
+      $('#scheduledDate').trigger('blur');
+    }, 100);
+  }
+
+  updateSelectedHrValue(event:string) {
+    this.scheduledHr = event;
+  }
+
+  updateSelectedMinValue(event:string) {
+    this.scheduledMin = event;
+  }
+
+  getLatLngFromAddress(address) {
+
+    var retArrary = new Array(2);
+    var deferred = $.Deferred();
+    var geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode( { 'address' : address }, function( results, status ) {
+
+        if( status == google.maps.GeocoderStatus.OK ) {
+          retArrary[0] = results[0].geometry.location.lat();
+          retArrary[1] = results[0].geometry.location.lng();
+          deferred.resolve(retArrary);  
+
+        } else {
+            deferred.reject(status);
+        }
+    } );
+
+    return deferred.promise();
+  }
+
+  calculateDistance(radius) {
+
+    var self = this;
+    var origin = new google.maps.LatLng( currentLatLng.latitude, currentLatLng.longitude ); // using google.maps.LatLng class
+    var destination = new google.maps.LatLng(this.dropLat, this.dropLng);
+
+    var directionsService = new google.maps.DirectionsService();
+    var request = {
+        origin: origin, // LatLng|string
+        destination: destination, // LatLng|string
+        travelMode: google.maps.DirectionsTravelMode.DRIVING
+    };
+
+    directionsService.route( request, function( response, status ) {
+
+        if ( status === 'OK' ) {
+            var point = response.routes[ 0 ].legs[ 0 ];
+            self.distance = point.distance.text;
+            self.postBookData(radius);
+        }
+    } );    
+  }
+
+  getCurrentLatLngAndInitMap() {
+
+      var self = this;
+      if (maplatlng.homeView == 'D') {
+        Geolocation.getCurrentPosition({ enableHighAccuracy: true }).then((resp) => {
+
+              currentLatLng.latitude = resp.coords.latitude;
+              currentLatLng.longitude = resp.coords.longitude;
+              var latlng = { lat: resp.coords.latitude , lng: resp.coords.longitude };
+              var geocoder = new google.maps.Geocoder();
+              geocoder.geocode({ 'location': latlng }, function (results, status) {
+                  if (status === 'OK') {
+                      if (results[0]) {
+
+                          currentLatLng.formattedAddress = results[0].formatted_address;
+ 
+                          self.pickupAddress = currentLatLng.formattedAddress;
+
+                          self.cd.detectChanges();
+                      }
+                      
+                  }
+              });
+
+              self.pickupAddress = currentLatLng.formattedAddress;
+              self.showNearByVehicles(currentLatLng.latitude, currentLatLng.longitude); 
+             
+          }).catch((error) => {
+              console.log('Error getting location : '+ error.message);
+              
+          });
+        }
+  }
+
+  togglePayMode(v) {
+    if (v==1) {
+      if (this.chkCash)
+        this.chkCard = false;
+      else
+        this.chkCard = true;              
+
+    } else {
+
+      if (this.chkCard)
+        this.chkCash = false;
+      else  
+        this.chkCash = true;
+    }
+
+    this.payMode = v;
+
+    this.cd.detectChanges();
+
+  }
+
+  ionViewDidLeave() {
+    clearInterval(this.clrInterval);
+  }
+
+  startGetVehicles() {
+      this.clrInterval = setInterval(() => {
+          this.showNearByVehicles(this.currentLat, this.currentLng);
+      }, SystemParams.vehiclePollInterval * 1000);  
+  }
+
+  getScheduledDate() {
+    var dt = new Date();
+    dt = new Date(dt.getTime() + 2*3600*1000); 
+
+    return dt;  
+  }
+}
